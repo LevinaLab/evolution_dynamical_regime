@@ -1,0 +1,304 @@
+#!/usr/bin/env python
+
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import colors
+from scipy.special import comb
+import pickle
+from sklearn import manifold
+from os import path, makedirs
+import os
+import time
+
+# beta-1/sim-20180511-163319
+# beta-10/sim-20180512-105824
+# beta-0-1/sim-20180512-105719
+
+
+#os.chdir('D:\Masterarbeit_ausgelagert')
+loadfile = 'sim-20200721-184203-g_4000_-rand_ts_-iso_-ref_500_-rec_c_250_-a_50_100_500_1000_-no_trace_-n_different_nbetas_from_scratch_isolated_no_beta_jump_GOOD'
+#loadfile = 'sim-20191023-151526_server_2000new'
+
+# iter_list = [0, 25, 50, 75, 200, 500, 1000]
+#iter_list = np.arange(0, 482, 2)
+iter_list=np.arange(0,2000, 10)
+# iter_list = np.arange(0, 2000, 6)
+numAgents = 50
+numNeurons = 12
+size_par = 'avg_energy' #Isings parameter that shall determine scatter size (usually 'fitness')
+# ---- t-SNE settings ------
+autoLoad = True
+loadJ = False
+loadFit = False
+transposeJ = False
+
+perplexity = 30
+n_iter = 2000
+# ---- plot settings ------
+saveFigBool = True
+
+scatter3d = False
+# markers = ['o', '+', '.', 'D', 's', '^', 'v', '*', 'h', 0, 1, 2, 3, 4]
+# alpha = np.linspace(0.3, 1, len(iter_list))
+# alpha = np.logspace(np.log(0.3), np.log(1), len(iter_list))
+cmap = plt.get_cmap('plasma')
+norm = colors.Normalize(vmin=0, vmax=len(iter_list))  # age/color mapping
+alpha = 0.4
+
+# plt.rc('text', usetex=True)
+# font = {'family': 'serif', 'size': 15, 'serif': ['computer modern roman']}
+# plt.rc('font', **font)
+# plt.rc('legend', **{'fontsize': 12})
+
+
+# markersize = np.linspace(1, 10, len(iter_list))
+# markersize = np.logspace(np.log(1), np.log(10), len(iter_list))
+# selected = np.logspace(np.log10(1), np.log10(len(iter_list)), 4) - 1
+selected = np.linspace(0, len(iter_list) - 1, 4)
+selected = [int(i) for i in selected]
+
+def load_saved_data(filename):
+    txt = 'Loading: ' + filename
+    print(txt)
+    data = np.load(filename)
+
+    return data
+
+
+def upper_tri_masking(A):
+    m = A.shape[0]
+    r = np.arange(m)
+    mask = r[:, None] < r
+    return A[mask]
+
+def load_J_from_isings(loadfile, iter_list, numAgents, numNeurons):
+    J = np.zeros((numAgents * len(iter_list), int(comb(numNeurons, 2))) )
+    iter_label = []
+
+    orgNum = 0
+
+    for iter in iter_list:
+        filename = 'save/' + loadfile + '/isings/gen[' + str(iter) + ']-isings.pickle'
+
+        startstr = 'Loading simulation:' + filename
+        print(startstr)
+
+        isings = pickle.load(open(filename, 'rb'))
+        iter_label.append('Gen: ' + str(iter))
+
+        for I in isings:
+            J[orgNum, :] = upper_tri_masking(I.J)
+            orgNum += 1  # this counter iterates for both loops!
+
+
+    return J
+
+def load_J_fitness_from_isings(loadfile, iter_list, numAgents, numNeurons):
+    J = np.zeros((numAgents * len(iter_list), int(comb(numNeurons, 2))) )
+    fitness = np.zeros(numAgents * len(iter_list))
+    iter_label = []
+
+    orgNum = 0
+    start_time = time.time()
+    for iter in iter_list:
+        filename = 'save/' + loadfile + '/isings/gen[' + str(iter) + ']-isings.pickle'
+
+        startstr = 'Loading simulation:' + filename
+        print(startstr)
+
+        isings = pickle.load(open(filename, 'rb'))
+        iter_label.append('Gen: ' + str(iter))
+
+        for I in isings:
+            J[orgNum, :] = upper_tri_masking(I.J)
+            #fitness[orgNum] = I.fitness
+            exec('fitness[orgNum] = I.%s' % size_par)
+            orgNum += 1  # this counter iterates for both loops!
+
+        # if iter == 2000:  # this iteration double counted fitness by accident!
+        #     for iOrg, I in enumerate(isings):
+        #         print('Correcting for generation 2000 double counting.')
+        #         fitness[(orgNum - 50 + iOrg)] -= fitness[orgNum - 100 + iOrg]
+    end_time = time.time()
+    print('Time:', end_time - start_time)
+    return J, fitness
+
+def load_fitness_from_isings(loadfile, iter_list, numAgents):
+    fitness = np.zeros(numAgents * len(iter_list))
+    iter_label = []
+
+    orgNum = 0
+    for iter in iter_list:
+        filename = 'save/' + loadfile + '/isings/gen[' + str(iter) + ']-isings.pickle'
+
+        startstr = 'Loading fitness from simulation:' + filename
+        print(startstr)
+
+        isings = pickle.load(open(filename, 'rb'))
+        iter_label.append('Gen: ' + str(iter))
+
+        for I in isings:
+            exec('fitness[orgNum] = I.%s' %size_par)
+            orgNum += 1  # this counter iterates for both loops!
+
+        # if iter == 2000:  # this iteration double counted fitness by accident!
+        #     for iOrg, I in enumerate(isings):
+        #         print('Correcting for generation 2000 double counting.')
+        #         fitness[(orgNum - 50 + iOrg)] -= fitness[orgNum - 100 + iOrg]
+
+    return fitness
+
+folder = 'save/' + loadfile
+# fname = folder + \
+#         '/figs/tsne_gen-' + \
+#         str(iter_list[0]) + '-' + str(iter_list[1] - iter_list[0]) + '-' + str(iter_list[-1]) + \
+#         '.png'
+
+folder2 = folder + '/figs/J_tsne_source/'
+
+if transposeJ:
+    fname2 = folder2 + 'J_tsne-T_gen-' + \
+             str(iter_list[0]) + '-' + str(iter_list[1] - iter_list[0]) + '-' + str(iter_list[-1]) + \
+             '_perp-' + str(perplexity) + '_n_iter-' + str(n_iter) + \
+             '.npz'
+else:
+    fname2 = folder2 + 'J_tsne_gen-' + \
+             str(iter_list[0]) + '-' + str(iter_list[1] - iter_list[0]) + '-' + str(iter_list[-1]) + \
+             '_perp-' + str(perplexity) + '_n_iter-' + str(n_iter) + \
+             '.npz'
+
+# See if you've generated this tsne already (they take a long time)
+if path.isfile(fname2) and autoLoad:
+    data = load_saved_data(fname2)
+    J_tsne = data['J_tsne']
+    fitness = data['fitness']
+else:
+    # CALCULUATE T-SNE
+    # [ organism(gen),  edges]
+    if (loadJ and loadFit) or ( not loadJ and not loadFit):
+        J, fitness = load_J_fitness_from_isings(loadfile, iter_list, numAgents, numNeurons)
+    elif loadJ:
+        J = load_J_from_isings(loadfile, iter_list, numAgents, numNeurons)
+        data = load_saved_data(fname2)
+        fitness = data['fitness']
+
+    elif loadFit:
+        fitness = load_fitness_from_isings(loadfile, iter_list, numAgents)
+
+        data = load_saved_data(fname2)
+        J_tsne = data['J_tsne']
+
+        if not path.exists(folder2):
+            makedirs(folder2)
+
+        # print('Overwriting save file...')
+        # np.savez(fname2, J_tsne=J_tsne, fitness=fitness)
+
+    if not loadFit:
+        #  ----------------------------------------------------------------------
+        print("Computing t-SNE embedding")
+        tsne = manifold.TSNE(n_components=2, init='pca',
+                             random_state=0, perplexity=perplexity, n_iter=n_iter)
+
+        if transposeJ: # model NN edges as 'agent' instead of organisms.
+            J_tsne = tsne.fit_transform(np.transpose(J))
+        else:
+            J_tsne = tsne.fit_transform(J)
+
+        if not path.exists(folder2):
+            makedirs(folder2)
+
+        np.savez(fname2, J_tsne=J_tsne, fitness=fitness)
+
+
+# PLOT
+# markerrank = rankdata(fitness, method='min')
+# markersize = np.logspace(np.log(1), np.log(5), len(markerrank))
+
+if scatter3d:
+    fig = plt.figure(figsize=(19,9))
+    ax = fig.add_subplot(111, projection='3d')
+else:
+    fig, ax = plt.subplots(1, 1, figsize=(18, 9))
+
+b = 0
+c = [b, b, b]
+
+if transposeJ:
+    x1 = J_tsne[:, 0]
+    y1 = J_tsne[:, 1]
+
+    ax.scatter(x1, y1)
+else:
+    for ii, iter in enumerate(iter_list):
+        if ii in selected:
+            label = str(iter)
+        else:
+            label = None
+
+        i = ii * numAgents
+        j = i + numAgents
+
+        x1 = J_tsne[i:j, 0]
+        y1 = J_tsne[i:j, 1]
+        z1 = np.tile(iter, (len(x1), 1))
+
+        c = cmap(norm(ii))
+        if scatter3d:
+            ax.scatter(x1, y1, z1, label=label,
+                       color=np.tile(c, (len(x1), 1)), alpha=alpha,
+                       s=np.exp(10.5 * fitness[i:j] / np.max(fitness)) / 100)
+        else:
+            max_fit = np.max(fitness)
+            if max_fit == 0.0:
+                max_fit = 0.05
+            ax.scatter(x1, y1, label=label,
+                       color=np.tile(c, (len(x1), 1)), alpha=alpha,
+                       s=np.exp(10.5 * fitness[i:j] / max_fit) / 25)
+            # s=markersize[markerrank[i:j]-1])
+
+
+
+
+
+
+
+# plt.rc('text', usetex=True)
+# font = {'family': 'serif', 'size': 28, 'serif': ['computer modern roman']}
+# plt.rc('font', **font)
+# plt.rc('legend', **{'fontsize': 20})
+
+titlestr = 'Connectivity t-SNE Projections'
+plt.title(titlestr)
+# xlblstr = 'Perplexity: ' + str(perplexity)
+# plt.xlabel(xlblstr)
+
+# leg = plt.legend(loc=2, title='Generation')
+#
+# for lh in leg.legendHandles:
+#     lh.set_alpha(1)
+#     # lh.set_sizes(30)
+
+plt.tight_layout()
+
+# ax = plt.gca()
+ax.set_aspect(1./ax.get_data_ratio())
+ax.set_xticklabels([])
+ax.set_yticklabels([])
+
+# manager = plt.get_current_fig_manager()
+# manager.resize(*manager.window.maxsize())
+
+savefilename = fname2[:-4] + '.png'
+if not path.exists(folder2):
+    makedirs(folder2)
+
+if saveFigBool:
+    plt.savefig(savefilename, bbox_inches='tight', dpi=800)
+    # plt.close()
+
+    savemsg = 'Saving ' + savefilename
+    print(savemsg)
+
+plt.show()

@@ -1,0 +1,26 @@
+varying_parameter,time_steps
+only_plot,False
+load_dynamic_range_parameter,True
+only_plot_folder_name,response_plot_20210205-151202_time_steps_only_gen_4000
+add_save_name,
+only_copied,True
+attr,avg_energy
+color,{'critical': ['olive', 'darkorange', 'turquoise'], 'sub_critical': ['royalblue', 'pink', 'magenta'], 'super_critical': ['maroon', 'red', 'steelblue']}
+marker2,{'critical': ['o'], 'sub_critical': ['X'], 'super_critical': []}
+marker,['.', 'x', '+']
+compress_save_isings,True
+plot_means,False
+divide_x_value_by_y_value,False
+trained_on_varying_parameter_value,2000
+critical_folder_name_dict,{'sim-20210206-122918_parallel_b1_normal_run_g4000_t2000_54_sims': ['gen4000_100foods_res_40_3_repeats_gen_4000d']}
+sub_critical_folder_name_dict,{'sim-20201119-190204_parallel_b10_normal_run_g4000_t2000_54_sims': ['gen4000_100foods_intermediate_run_res_40d']}
+alternative_folder_name_for_heat_capacities,{'sim-20210206-122918_parallel_b1_normal_run_g4000_t2000_54_sims': {'_intermediate_run_res_40_gen_100d': 'sim-20210117-224238_parallel_respone_plot_gen_100_heat_cap'}}
+highlight_certain_sims,True
+label_highlighted_sims,{'sim-20210206-122918_parallel_b1_normal_run_g4000_t2000_54_sims': {'_intermediate_run_res_40_gen_100d': {1: '4', 15: '6'}, 'gen4000_100foods_res_40_3_repeats_gen_4000d': {21: '7', 10: '9'}}, 'sim-20201119-190204_parallel_b10_normal_run_g4000_t2000_54_sims': {'gen4000_100foods_intermediate_run_res_40d': {28: '1', 3: '3', 53: '5', 7: '2', 39: '8', 48: '10'}}}
+x_offsets_for_labels,{'sim-20210206-122918_parallel_b1_normal_run_g4000_t2000_54_sims': {'_intermediate_run_res_40_gen_100d': {}, 'gen4000_100foods_res_40_3_repeats_gen_4000d': {}}, 'sim-20201119-190204_parallel_b10_normal_run_g4000_t2000_54_sims': {'gen4000_100foods_intermediate_run_res_40d': {'3': 800, '5': 800, '8': 800}}}
+y_offsets_for_labels,{'sim-20210206-122918_parallel_b1_normal_run_g4000_t2000_54_sims': {'_intermediate_run_res_40_gen_100d': {'4': -10}, 'gen4000_100foods_res_40_3_repeats_gen_4000d': {}}, 'sim-20201119-190204_parallel_b10_normal_run_g4000_t2000_54_sims': {'gen4000_100foods_intermediate_run_res_40d': {'2': -8, '3': -6.5}}}
+customize_legend_labels,True
+custom_legend_labels,{'sim-20210206-122918_parallel_b1_normal_run_g4000_t2000_54_sims': {'_intermediate_run_res_40_gen_100d': 'Critical Generation 100', 'gen4000_100foods_res_40_3_repeats_gen_4000d': 'Critical Generation 4000'}, 'sim-20201119-190204_parallel_b10_normal_run_g4000_t2000_54_sims': {'gen4000_100foods_intermediate_run_res_40d': 'Sub Critical Generation 4000'}}
+use_colormaps,False
+custom_colormaps,True
+savefolder_name,response_plot_20210210-121901_time_steps
