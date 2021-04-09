@@ -32,7 +32,7 @@ For all scripts, the working directory should be located in the same directory, 
 Bear in mind that the settings in the `train` python script will need to be edited to your own preferences and directories.
 
 ## Experiments
-The experiments of the paper can be reproduced by running the scripts in the folders "pipelines_for_paper_experiments" as well as "make_paper_figures". Again make sure, that the working directory is set to where the dir "save" is located
+The experiments of the paper can be reproduced by running the scripts in the folders "pipelines_for_paper_experiments" as well as "make_paper_figures". Again make sure, that the working directory is set to the parent dir of "save".
 
 Most Figures of the paper can be reproduced immediately just by running the scripts (with the suffix "with_data") in the folder "make_paper_figures" as we included their undelying data in the repo.
 
