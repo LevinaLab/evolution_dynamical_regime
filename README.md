@@ -66,3 +66,7 @@ The genotypes of an individual ising-embodied organism is defined by the connect
 
 ## Research Goals
 This project is motivated by the criticality hypothesis. The latter states that evolution presses biological systems into a dynamical regime close to the critical point between order and disorder as this provides to be beneficial to those systems. While some research concludes, that biological systems are poised exactly at the critical point, other studies find, that being rather in the sub-critical regime is beneficial for biological systems. It is believed, that the dynamical regime plays a big role in the context of a system's generalizability, ability to solve complex tasks as well as its evolvability, however the underlying dynamics are not yet fully understood. We wanted to find out, how and why these properties differ depending on the dynamical regime, that a population evolved into.
+
+## Requirements
+All required packages are listed in requirements.txt
+In order to save animations of the environments FFmpeg has to be installed (usually pre-installed)
